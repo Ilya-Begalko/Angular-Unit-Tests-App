@@ -1,0 +1,30 @@
+<div class="container">
+
+    <div class="panel">
+        <p-panel header="What Quote is on your mind ?">
+            <div class="form">
+                <textarea #quote pInputTextarea class="form-control" rows="5" cols="30" [(ngModel)]="quoteText"
+                    name="quoteText"></textarea>
+                <button pButton pRipple class="btn btn-primary" (click)="createNewQuote()" [disabled]="quoteText == ''">
+                    Create a new quote
+                </button>
+            </div>
+        </p-panel>
+    </div>
+
+    <div class="panel" style="margin-left: 5%;">
+        <p-panel header="Quote List" [style]="{'width': '320px'}">
+            <div class="card" id="quote-cards" *ngFor="let quote of quoteList; let i = index">
+                <div class="card-container">
+                    <div class="card-body">
+                        <span>{{ quote.text }}</span>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>Created on {{ quote.timeCreated }}</small>
+                    </div>
+                </div>
+                <p-button icon="pi pi-times" styleClass="p-button-rounded p-button-danger p-button-text" (click)="removeQuote(i)"></p-button>
+            </div>
+        </p-panel>
+    </div>
+</div>

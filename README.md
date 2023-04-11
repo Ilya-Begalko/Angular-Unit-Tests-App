@@ -11,3 +11,5 @@ There are two types of Angular testing:
 
 1) Unit testing is the process of testing small, isolated pieces of code. Also known as isolated testing, unit tests do not use external resources, such as the network or a database
 2) Functional testing refers to testing the functionality of your Angular app from a user experience perspective — i.e., interacting with your app as it’s running in a browser just as a user would
+
+![](assets/image_2023-04-11_18-44-10.png)

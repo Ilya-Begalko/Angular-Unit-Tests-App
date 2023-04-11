@@ -1,0 +1,12 @@
+* {
+    box-sizing: border-box;
+}
+
+span{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    padding: 1%;
+    font-size: x-large;
+}
