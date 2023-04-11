@@ -1,27 +1,13 @@
 # AngularUnitTestsApp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.5.
+In this Angular unit testing tutorial, we’ll demonstrate how to build a simple Angular app 
+and then walk through the unit testing process step by step with examples.
 
-## Development server
+## Angular testing is a core feature available in every project set up with the Angular CLI.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+To stay synchronized with the JavaScript ecosystem, the Angular team makes a point to release two major Angular versions each year. Since its inception through to its most recent release, Angular 15, Angular has been designed with testability in mind.
 
-## Code scaffolding
+There are two types of Angular testing:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+1) Unit testing is the process of testing small, isolated pieces of code. Also known as isolated testing, unit tests do not use external resources, such as the network or a database
+2) Functional testing refers to testing the functionality of your Angular app from a user experience perspective — i.e., interacting with your app as it’s running in a browser just as a user would
