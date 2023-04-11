@@ -1,4 +1,4 @@
-# AngularUnitTestsApp
+# Angular Unit Tests App
 
 In this Angular unit testing tutorial, we’ll demonstrate how to build a simple Angular app 
 and then walk through the unit testing process step by step with examples.
