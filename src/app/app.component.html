@@ -1,3 +1,120 @@
-<span>{{ title }} is running!</span>
+<a class="skip-link" href="#main">Перейти к содержимому</a>
 
-<router-outlet></router-outlet>
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href="#top" (click)="closeMenu()">
+      <span class="brand__logo" aria-hidden="true"><i class="pi pi-check-square"></i></span>
+      <span class="brand__name">{{ title }}</span>
+    </a>
+
+    <button
+      type="button"
+      class="header__burger"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="main-nav"
+      (click)="toggleMenu()"
+    >
+      <i [class]="menuOpen() ? 'pi pi-times' : 'pi pi-bars'" aria-hidden="true"></i>
+      <span class="visually-hidden">{{ menuOpen() ? 'Закрыть меню' : 'Открыть меню' }}</span>
+    </button>
+
+    <nav id="main-nav" class="nav" [class.nav--open]="menuOpen()" aria-label="Основная навигация">
+      <ul class="nav__list">
+        @for (link of links; track link.href) {
+          <li><a class="nav__link" [href]="link.href" (click)="closeMenu()">{{ link.label }}</a></li>
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <section id="top" class="hero" aria-labelledby="hero-title">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <p class="hero__eyebrow">Angular {{ angularVersion }} · Signals · Vitest</p>
+        <h1 id="hero-title" class="hero__title">
+          Юнит-тесты в Angular —
+          <span class="hero__accent">наглядно и по шагам</span>
+        </h1>
+        <p class="hero__lead">
+          Небольшой цитатник и интерактивная лаборатория, которая запускает те же сценарии, что и
+          <code>*.spec.ts</code>, и показывает каждый шаг: подготовку, действие и проверку.
+        </p>
+        <div class="hero__cta">
+          <a class="cta cta--primary" href="#lab">
+            <i class="pi pi-play" aria-hidden="true"></i>
+            Запустить тесты
+          </a>
+          <a class="cta cta--ghost" href="#how">Как это работает</a>
+        </div>
+      </div>
+
+      <figure class="hero__terminal" aria-label="Пример вывода npm test">
+        <div class="terminal__bar" aria-hidden="true"><span></span><span></span><span></span></div>
+        <pre class="terminal__body"><code><span class="t-muted">$</span> npm test
+
+ <span class="t-pass">✓</span> QuoteService <span class="t-muted">(4)</span>
+ <span class="t-pass">✓</span> QuotesComponent <span class="t-muted">(7)</span>
+ <span class="t-pass">✓</span> AppComponent <span class="t-muted">(3)</span>
+ <span class="t-pass">✓</span> TestLabRunner <span class="t-muted">(2)</span>
+
+ <span class="t-muted">Test Files</span>  <span class="t-pass">4 passed</span> <span class="t-muted">(4)</span>
+ <span class="t-muted">     Tests</span>  <span class="t-pass">16 passed</span> <span class="t-muted">(16)</span></code></pre>
+        <figcaption class="visually-hidden">Пример вывода команды npm test</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="demo" class="section" aria-labelledby="demo-title">
+    <div class="container">
+      <header class="section__head">
+        <span class="section__eyebrow"><i class="pi pi-desktop" aria-hidden="true"></i> Шаг 1</span>
+        <h2 id="demo-title" class="section__title">Тестируемое приложение</h2>
+        <p class="section__lead">
+          Цитатник из компонента <code>QuotesComponent</code> и сервиса <code>QuoteService</code>. Добавьте и удалите
+          пару цитат: именно это поведение проверяют тесты.
+        </p>
+      </header>
+      <app-quotes />
+    </div>
+  </section>
+
+  <section id="how" class="section section--alt" aria-labelledby="how-title">
+    <div class="container">
+      <header class="section__head">
+        <span class="section__eyebrow"><i class="pi pi-book" aria-hidden="true"></i> Шаг 2</span>
+        <h2 id="how-title" class="section__title">Как устроено тестирование</h2>
+        <p class="section__lead">
+          Что такое юнит-тест, что делает Angular CLI после <code>npm test</code> и из каких частей состоит каждый
+          тест.
+        </p>
+      </header>
+      <app-testing-guide />
+    </div>
+  </section>
+
+  <section id="lab" class="section" aria-labelledby="lab-title">
+    <div class="container">
+      <header class="section__head">
+        <span class="section__eyebrow"><i class="pi pi-bolt" aria-hidden="true"></i> Шаг 3</span>
+        <h2 id="lab-title" class="section__title">Лаборатория тестов</h2>
+        <p class="section__lead">
+          Сценарии из спек выполняются прямо в браузере. Каждый тест получает изолированный инжектор и свой экземпляр
+          сервиса, компонент рендерится в песочницу, а журнал показывает каждую проверку <code>expect()</code>.
+        </p>
+      </header>
+      <app-test-lab />
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p>
+      <strong>{{ title }}</strong> — учебный проект. Запустите настоящие тесты локально:
+      <code>npm test</code>
+    </p>
+    <p class="footer__meta">© {{ year }} · Angular {{ angularVersion }}</p>
+  </div>
+</footer>

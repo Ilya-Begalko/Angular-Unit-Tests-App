@@ -1,0 +1,80 @@
+<div class="guide">
+  <section class="guide__block" aria-labelledby="kinds-title">
+    <h3 id="kinds-title" class="guide__subtitle">Какие бывают тесты</h3>
+    <ul class="kinds">
+      @for (kind of kinds; track kind.title) {
+        <li class="card kind">
+          <span class="kind__icon" aria-hidden="true"><i [class]="'pi ' + kind.icon"></i></span>
+          <h4 class="kind__title">{{ kind.title }}</h4>
+          <p class="kind__scope">{{ kind.scope }}</p>
+          <p class="kind__text">{{ kind.text }}</p>
+          <dl class="kind__meta">
+            <div>
+              <dt>Пример</dt>
+              <dd><code>{{ kind.example }}</code></dd>
+            </div>
+            <div>
+              <dt>Скорость</dt>
+              <dd>{{ kind.speed }}</dd>
+            </div>
+          </dl>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="guide__block" aria-labelledby="pipeline-title">
+    <h3 id="pipeline-title" class="guide__subtitle">Что происходит после <code>npm test</code></h3>
+    <ol class="pipeline">
+      @for (step of pipeline; track step.title; let i = $index) {
+        <li class="pipeline__step">
+          <span class="pipeline__num" aria-hidden="true">{{ i + 1 }}</span>
+          <div class="pipeline__body">
+            <h4 class="pipeline__title">{{ step.title }}</h4>
+            <p class="pipeline__text">{{ step.text }}</p>
+            @if (step.code) {
+              <code class="pipeline__code">{{ step.code }}</code>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="guide__block guide__aaa" aria-labelledby="aaa-title">
+    <div class="aaa__text">
+      <h3 id="aaa-title" class="guide__subtitle">Паттерн Arrange → Act → Assert</h3>
+      <p>Каждый тест в проекте построен из трёх частей. Так его легко читать: сразу видно, что подготовлено, что сделано и что проверено.</p>
+      <dl class="aaa__list">
+        <div class="aaa__item">
+          <dt><span class="phase phase--arrange">Arrange</span></dt>
+          <dd>Подготовка: создаём компонент, кладём данные в сервис, подменяем зависимости шпионами.</dd>
+        </div>
+        <div class="aaa__item">
+          <dt><span class="phase phase--act">Act</span></dt>
+          <dd>Действие: одно событие, которое мы тестируем, — клик, ввод текста, вызов метода.</dd>
+        </div>
+        <div class="aaa__item">
+          <dt><span class="phase phase--assert">Assert</span></dt>
+          <dd>Проверка: через <code>expect()</code> сравниваем фактический результат с ожидаемым.</dd>
+        </div>
+      </dl>
+      <p class="aaa__note">
+        В лаборатории ниже каждый шаг подсвечен цветом своей фазы — так видно, на каком этапе тест сейчас и где упал.
+      </p>
+    </div>
+    <pre class="code-block aaa__code"><code>{{ aaaExample }}</code></pre>
+  </section>
+
+  <section class="guide__block" aria-labelledby="api-title">
+    <h3 id="api-title" class="guide__subtitle">Шпаргалка по API</h3>
+    <dl class="api">
+      @for (entry of api; track entry.name) {
+        <div class="api__item">
+          <dt><code>{{ entry.name }}</code></dt>
+          <dd>{{ entry.text }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+</div>

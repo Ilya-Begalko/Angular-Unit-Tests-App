@@ -1,0 +1,308 @@
+@let summary = runner.summary();
+@let running = runner.isRunning();
+
+<div class="lab">
+  <div class="card lab__toolbar" role="group" aria-label="Управление запуском тестов">
+    <div class="lab__actions">
+      @if (running) {
+        <button type="button" class="btn btn--danger" (click)="runner.stop()" data-testid="stop">
+          <i class="pi pi-stop-circle" aria-hidden="true"></i>
+          Остановить
+        </button>
+      } @else {
+        <button type="button" class="btn" (click)="runner.runAll()" data-testid="run-all">
+          <i class="pi pi-play" aria-hidden="true"></i>
+          Запустить все тесты
+        </button>
+      }
+      <button type="button" class="btn btn--outline" [disabled]="running" (click)="runner.reset()">
+        <i class="pi pi-refresh" aria-hidden="true"></i>
+        Сбросить
+      </button>
+    </div>
+
+    <fieldset class="lab__speed" [disabled]="running">
+      <legend class="lab__legend">Скорость</legend>
+      <div class="segmented">
+        @for (speed of speeds; track speed.value) {
+          <label class="segmented__option" [title]="speed.hint">
+            <input
+              type="radio"
+              name="lab-speed"
+              [value]="speed.value"
+              [checked]="runner.speed() === speed.value"
+              (change)="runner.speed.set(speed.value)"
+            />
+            <span>{{ speed.label }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <label class="lab__bug" [class.lab__bug--on]="runner.injectBug()">
+      <input
+        type="checkbox"
+        role="switch"
+        [checked]="runner.injectBug()"
+        [disabled]="running"
+        (change)="runner.injectBug.set($any($event.target).checked)"
+        data-testid="inject-bug"
+      />
+      <span class="lab__bug-track" aria-hidden="true"></span>
+      <span>
+        <strong>Внести баг в QuoteService</strong>
+        <small>Посмотрите, какие тесты поймают регрессию</small>
+      </span>
+    </label>
+  </div>
+
+  <div class="lab__summary" data-testid="lab-summary">
+    <div
+      class="progress"
+      role="progressbar"
+      aria-label="Прогресс запуска тестов"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="summary.total"
+      [attr.aria-valuenow]="summary.done"
+      [class.progress--failed]="summary.failed > 0"
+    >
+      <span class="progress__bar" [style.width.%]="summary.progress"></span>
+    </div>
+    <dl class="stats">
+      <div class="stats__item">
+        <dt>Всего</dt>
+        <dd>{{ summary.total }}</dd>
+      </div>
+      <div class="stats__item stats__item--passed">
+        <dt>Пройдено</dt>
+        <dd data-testid="passed-count">{{ summary.passed }}</dd>
+      </div>
+      <div class="stats__item stats__item--failed">
+        <dt>Упало</dt>
+        <dd data-testid="failed-count">{{ summary.failed }}</dd>
+      </div>
+      <div class="stats__item">
+        <dt>Время</dt>
+        <dd>{{ runner.totalDurationMs() }}&nbsp;мс</dd>
+      </div>
+    </dl>
+    <p class="lab__now" aria-live="polite">
+      @if (running && activeTitle()) {
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        Сейчас выполняется: <strong>{{ activeTitle() }}</strong>
+      } @else if (summary.done === 0) {
+        Нажмите «Запустить все тесты» или ▶ у отдельного теста.
+      } @else if (summary.failed > 0) {
+        <i class="pi pi-times-circle lab__now-icon--failed" aria-hidden="true"></i>
+        Есть упавшие тесты — раскройте их, чтобы увидеть «ожидали / получили».
+      } @else {
+        <i class="pi pi-check-circle lab__now-icon--passed" aria-hidden="true"></i>
+        Все запущенные тесты зелёные.
+      }
+    </p>
+  </div>
+
+  <div class="lab__grid">
+    <div class="lab__suites">
+      <div class="lab__expand">
+        <button type="button" class="link-button" (click)="setExpandedAll(true)">Раскрыть все</button>
+        <button type="button" class="link-button" (click)="setExpandedAll(false)">Свернуть все</button>
+      </div>
+
+      @for (group of groups; track group.suite.name) {
+        @let stats = suiteStats(group);
+        <section class="card suite" [attr.aria-labelledby]="'suite-' + group.suite.name">
+          <header class="suite__head">
+            <div class="suite__title-row">
+              <h3 class="suite__title" [id]="'suite-' + group.suite.name">
+                <code>describe('{{ group.suite.name }}')</code>
+              </h3>
+              <span class="suite__stats">
+                <span class="suite__stat--passed">{{ stats.passed }}</span> /
+                <span>{{ stats.total }}</span>
+                @if (stats.failed) {
+                  · <span class="suite__stat--failed">{{ stats.failed }} упало</span>
+                }
+              </span>
+            </div>
+            <p class="suite__desc">{{ group.suite.description }}</p>
+            <p class="suite__file"><i class="pi pi-file" aria-hidden="true"></i> {{ group.suite.file }}</p>
+          </header>
+
+          <ol class="scenarios">
+            @for (view of group.views; track view.scenario.id) {
+              @let scenario = view.scenario;
+              @let state = runner.states()[scenario.id];
+              @let open = isExpanded(scenario.id);
+              <li
+                class="scenario"
+                [attr.data-status]="state.status"
+                [class.scenario--active]="runner.activeId() === scenario.id"
+                [attr.data-testid]="'scenario-' + scenario.id"
+              >
+                <div class="scenario__head">
+                  <span class="status" [attr.data-status]="state.status">
+                    <i [class]="'pi ' + statusMeta[state.status].icon" aria-hidden="true"></i>
+                    <span class="visually-hidden">{{ statusMeta[state.status].label }}</span>
+                  </span>
+                  <button
+                    type="button"
+                    class="scenario__toggle"
+                    [attr.aria-expanded]="open"
+                    [attr.aria-controls]="'details-' + scenario.id"
+                    (click)="toggle(scenario.id)"
+                  >
+                    <span class="scenario__title">{{ scenario.title }}</span>
+                    <code class="scenario__it">it('{{ scenario.name }}')</code>
+                  </button>
+                  @if (state.durationMs !== undefined) {
+                    <span class="scenario__time">{{ state.durationMs }}&nbsp;мс</span>
+                  }
+                  <button
+                    type="button"
+                    class="btn btn--icon"
+                    [disabled]="running"
+                    [attr.aria-label]="'Запустить тест «' + scenario.title + '»'"
+                    (click)="runner.runOne(scenario.id)"
+                  >
+                    <i class="pi pi-play" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                @if (open) {
+                  <div class="scenario__details" [id]="'details-' + scenario.id">
+                    <p class="scenario__goal">{{ scenario.goal }}</p>
+
+                    <ol class="steps" aria-label="Шаги теста">
+                      @for (step of view.steps; track $index) {
+                        @let stepStatus = state.steps[$index];
+                        <li class="step" [attr.data-status]="stepStatus">
+                          <span class="step__marker" aria-hidden="true">
+                            @switch (stepStatus) {
+                              @case ('running') {
+                                <i class="pi pi-spin pi-spinner"></i>
+                              }
+                              @case ('passed') {
+                                <i class="pi pi-check"></i>
+                              }
+                              @case ('failed') {
+                                <i class="pi pi-times"></i>
+                              }
+                              @default {
+                                {{ $index + 1 }}
+                              }
+                            }
+                          </span>
+                          <div class="step__body">
+                            <div class="step__title-row">
+                              <span [class]="'phase phase--' + step.phase">{{ phaseLabels[step.phase] }}</span>
+                              <span class="step__title">{{ step.title }}</span>
+                              <span class="visually-hidden">— {{ statusMeta[stepStatus].label }}</span>
+                            </div>
+                            @if (step.detail) {
+                              <p class="step__detail">{{ step.detail }}</p>
+                            }
+                          </div>
+                        </li>
+                      }
+                    </ol>
+
+                    @if (state.error; as error) {
+                      <div class="scenario__error" role="alert">
+                        <p class="scenario__error-title">
+                          <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                          <code>{{ error.message }}</code>
+                        </p>
+                        @if (error.expected !== undefined) {
+                          <dl class="diff">
+                            <dt>Ожидали</dt>
+                            <dd class="diff__expected">{{ error.expected }}</dd>
+                            <dt>Получили</dt>
+                            <dd class="diff__received">{{ error.received }}</dd>
+                          </dl>
+                        }
+                      </div>
+                    }
+
+                    <ul class="tools" aria-label="Используемые API">
+                      @for (tool of scenario.tools; track tool) {
+                        <li><code>{{ tool }}</code></li>
+                      }
+                    </ul>
+
+                    <details class="scenario__code">
+                      <summary>Код теста из <code>{{ scenario.suite.file }}</code></summary>
+                      <pre class="code-block"><code>{{ scenario.code }}</code></pre>
+                    </details>
+                  </div>
+                }
+              </li>
+            }
+          </ol>
+        </section>
+      }
+    </div>
+
+    <aside class="lab__side" aria-label="Что происходит во время теста">
+      <section class="card panel" aria-labelledby="sandbox-title">
+        <header class="panel__head">
+          <h3 id="sandbox-title" class="panel__title">
+            <i class="pi pi-desktop" aria-hidden="true"></i>
+            Песочница
+          </h3>
+          <span class="panel__badge" [attr.data-mode]="runner.sandboxMode()">
+            @switch (runner.sandboxMode()) {
+              @case ('component') {
+                &lt;app-quotes&gt; в DOM
+              }
+              @case ('service') {
+                без DOM
+              }
+              @default {
+                пусто
+              }
+            }
+          </span>
+        </header>
+        <p class="panel__hint">Так видит компонент тест: отдельный экземпляр с собственным сервисом, без доступа к демо выше.</p>
+        <div class="sandbox">
+          @switch (runner.sandboxMode()) {
+            @case ('service') {
+              <p class="sandbox__placeholder">
+                <i class="pi pi-cog" aria-hidden="true"></i>
+                <span>Сервис тестируется как обычный класс: <code>new QuoteService()</code>. Рендерить нечего.</span>
+              </p>
+            }
+            @case ('empty') {
+              <p class="sandbox__placeholder">
+                <i class="pi pi-box" aria-hidden="true"></i>
+                <span>Здесь появится компонент, созданный тестом.</span>
+              </p>
+            }
+          }
+          <div #sandbox class="sandbox__host" data-testid="sandbox"></div>
+        </div>
+      </section>
+
+      <section class="card panel" aria-labelledby="log-title">
+        <header class="panel__head">
+          <h3 id="log-title" class="panel__title">
+            <i class="pi pi-list" aria-hidden="true"></i>
+            Журнал
+          </h3>
+          <button type="button" class="link-button" [disabled]="running" (click)="runner.clearLog()">Очистить</button>
+        </header>
+        <ol #logList class="console" role="log" aria-live="polite" aria-relevant="additions" data-testid="lab-log">
+          @for (entry of runner.logs(); track entry.id) {
+            <li class="console__line" [attr.data-kind]="entry.kind">
+              <span class="console__time">+{{ entry.at }}</span>
+              <span class="console__text">{{ entry.text }}</span>
+            </li>
+          } @empty {
+            <li class="console__line console__line--empty">Журнал пуст. Запустите тест, чтобы увидеть каждый шаг.</li>
+          }
+        </ol>
+      </section>
+    </aside>
+  </div>
+</div>

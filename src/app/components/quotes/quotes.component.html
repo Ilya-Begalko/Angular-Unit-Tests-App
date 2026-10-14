@@ -1,30 +1,128 @@
-<div class="container">
+<div class="quotes">
+  <form class="card composer" (ngSubmit)="createNewQuote()" aria-labelledby="composer-title" data-testid="quote-form">
+    <h3 id="composer-title" class="quotes__title">
+      <i class="pi pi-pencil" aria-hidden="true"></i>
+      Новая цитата
+    </h3>
 
-    <div class="panel">
-        <p-panel header="What Quote is on your mind ?">
-            <div class="form">
-                <textarea #quote pInputTextarea class="form-control" rows="5" cols="30" [(ngModel)]="quoteText"
-                    name="quoteText"></textarea>
-                <button pButton pRipple class="btn btn-primary" (click)="createNewQuote()" [disabled]="quoteText == ''">
-                    Create a new quote
-                </button>
-            </div>
-        </p-panel>
-    </div>
+    <label class="composer__label" for="quote-text">Какая цитата у вас на уме?</label>
+    <textarea
+      id="quote-text"
+      name="quoteText"
+      rows="5"
+      class="field composer__input"
+      placeholder="Например: «Сначала тест, потом код»"
+      [maxlength]="maxLength"
+      [(ngModel)]="quoteText"
+      aria-describedby="quote-counter"
+      data-testid="quote-input"
+    ></textarea>
 
-    <div class="panel" style="margin-left: 5%;">
-        <p-panel header="Quote List" [style]="{'width': '320px'}">
-            <div class="card" id="quote-cards" *ngFor="let quote of quoteList; let i = index">
-                <div class="card-container">
-                    <div class="card-body">
-                        <span>{{ quote.text }}</span>
-                    </div>
-                    <div class="card-footer text-muted">
-                        <small>Created on {{ quote.timeCreated }}</small>
-                    </div>
-                </div>
-                <p-button icon="pi pi-times" styleClass="p-button-rounded p-button-danger p-button-text" (click)="removeQuote(i)"></p-button>
-            </div>
-        </p-panel>
+    <div class="composer__footer">
+      <small id="quote-counter" class="composer__counter" aria-live="polite">
+        {{ quoteText().length }} / {{ maxLength }}
+      </small>
+      <button type="submit" class="btn" [disabled]="!canSubmit()" data-testid="submit-quote">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Добавить цитату
+      </button>
     </div>
+  </form>
+
+  <section class="card quotes__panel" aria-labelledby="my-quotes-title">
+    <header class="quotes__head">
+      <h3 id="my-quotes-title" class="quotes__title">
+        <i class="pi pi-bookmark" aria-hidden="true"></i>
+        Мои цитаты
+      </h3>
+      <span class="quotes__count" [attr.aria-label]="'Всего цитат: ' + quoteList().length">
+        {{ quoteList().length }}
+      </span>
+    </header>
+
+    @if (quoteList().length) {
+      <ul class="quote-list" data-testid="quote-list">
+        @for (quote of quoteList(); track quote.id) {
+          <li class="quote" data-testid="quote-item">
+            <figure class="quote__body">
+              <blockquote class="quote__text">{{ quote.text }}</blockquote>
+              <figcaption class="quote__meta">
+                Добавлено
+                <time [attr.datetime]="quote.createdAt.toISOString()">
+                  {{ quote.createdAt | date: 'd MMMM y, HH:mm' }}
+                </time>
+              </figcaption>
+            </figure>
+            <button
+              type="button"
+              class="btn btn--icon btn--danger"
+              [attr.aria-label]="'Удалить цитату «' + quote.text + '»'"
+              (click)="removeQuote(quote.id)"
+              data-testid="remove-quote"
+            >
+              <i class="pi pi-trash" aria-hidden="true"></i>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="quotes__empty" data-testid="quotes-empty">
+        <i class="pi pi-inbox" aria-hidden="true"></i>
+        Пока пусто — добавьте первую цитату в форме.
+      </p>
+    }
+  </section>
+
+  <section
+    class="card quotes__panel"
+    aria-labelledby="server-quotes-title"
+    [attr.aria-busy]="isFetching()"
+    data-testid="server-quotes"
+  >
+    <header class="quotes__head">
+      <h3 id="server-quotes-title" class="quotes__title">
+        <i class="pi pi-cloud-download" aria-hidden="true"></i>
+        С «сервера»
+      </h3>
+      @if (isFetching()) {
+        <span class="quotes__status quotes__status--loading" role="status">
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          Загрузка…
+        </span>
+      } @else {
+        <span class="quotes__status quotes__status--done" role="status">
+          <i class="pi pi-check" aria-hidden="true"></i>
+          Получено: {{ fetchedList().length }}
+        </span>
+      }
+    </header>
+
+    @if (isFetching()) {
+      <ul class="quote-list" aria-hidden="true">
+        @for (placeholder of [1, 2]; track placeholder) {
+          <li class="quote quote--skeleton">
+            <span class="skeleton skeleton--line"></span>
+            <span class="skeleton skeleton--short"></span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <ul class="quote-list" data-testid="fetched-list">
+        @for (quote of fetchedList(); track quote.id) {
+          <li class="quote quote--server">
+            <figure class="quote__body">
+              <blockquote class="quote__text">{{ quote.text }}</blockquote>
+              @if (quote.author) {
+                <figcaption class="quote__meta">— {{ quote.author }}</figcaption>
+              }
+            </figure>
+          </li>
+        }
+      </ul>
+    }
+    <p class="quotes__hint">
+      <code>fetchQuotesFromServer()</code> имитирует запрос с задержкой 2&nbsp;секунды — идеальный кандидат для
+      асинхронного теста.
+    </p>
+  </section>
 </div>

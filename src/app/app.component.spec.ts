@@ -1,35 +1,43 @@
-import { TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { QuoteService } from './components/quotes/service/quote.service';
 
 describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let element: HTMLElement;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule
-      ],
-      declarations: [
-        AppComponent
-      ],
+      imports: [AppComponent],
     }).compileComponents();
-  });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'Angular-Unit-Tests-App'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('Angular-Unit-Tests-App');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+    vi.spyOn(TestBed.inject(QuoteService), 'fetchQuotesFromServer').mockResolvedValue([]);
+    fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('span')?.textContent).toContain('Angular-Unit-Tests-App is running!');
+    element = fixture.nativeElement;
+  });
+
+  it('should render a single h1 heading', () => {
+    const headings = element.querySelectorAll('h1');
+
+    expect(headings).toHaveLength(1);
+    expect(headings[0].textContent).toContain('Юнит-тесты в Angular');
+  });
+
+  it('should provide semantic landmarks', () => {
+    expect(element.querySelector('header')).toBeTruthy();
+    expect(element.querySelector('nav[aria-label]')).toBeTruthy();
+    expect(element.querySelector('main#main')).toBeTruthy();
+    expect(element.querySelector('footer')).toBeTruthy();
+  });
+
+  it('should toggle the mobile menu', () => {
+    const burger = element.querySelector<HTMLButtonElement>('.header__burger')!;
+
+    burger.click();
+    fixture.detectChanges();
+
+    expect(burger.getAttribute('aria-expanded')).toBe('true');
+    expect(element.querySelector('.nav')?.classList).toContain('nav--open');
   });
 });

@@ -1,39 +1,59 @@
-import { Injectable } from "@angular/core";
-import { QuoteModel } from "../model/quote.model";
+import { Injectable, computed, signal } from '@angular/core';
+import { QuoteModel } from '../model/quote.model';
 
-@Injectable({
-    providedIn: "root"
-})
+export const FETCH_DELAY_MS = 2000;
+
+export const SERVER_QUOTES: readonly QuoteModel[] = [
+  {
+    id: -1,
+    text: 'Тестирование программ может доказать наличие ошибок, но никогда — их отсутствие.',
+    author: 'Эдсгер Дейкстра',
+    createdAt: new Date('1970-01-01T00:00:00Z'),
+  },
+  {
+    id: -2,
+    text: 'Код без тестов — это плохой код. Неважно, насколько он хорошо написан.',
+    author: 'Майкл Физерс',
+    createdAt: new Date('2004-09-22T00:00:00Z'),
+  },
+  {
+    id: -3,
+    text: 'Тесты — это лучшая документация: она никогда не устаревает.',
+    author: 'Народная мудрость',
+    createdAt: new Date('2018-06-04T00:00:00Z'),
+  },
+];
+
+@Injectable({ providedIn: 'root' })
 export class QuoteService {
-    public quoteList: QuoteModel[] = [];
+  private readonly quoteList = signal<QuoteModel[]>([]);
+  private nextId = 1;
 
-    private daysOfTheWeeks = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
+  readonly quotes = this.quoteList.asReadonly();
+  readonly count = computed(() => this.quoteList().length);
 
-    constructor() { }
-
-    addNewQuote(quote: String) {
-        const date = new Date();
-        const dayOfTheWeek = this.daysOfTheWeeks[date.getDate()];
-        const day = date.getDay();
-        const year = date.getFullYear();
-        this.quoteList.push(
-            new QuoteModel(quote, `${dayOfTheWeek} ${day}, ${year}`)
-        );
+  addNewQuote(text: string): QuoteModel | null {
+    const normalized = text.trim();
+    if (!normalized) {
+      return null;
     }
 
-    getQuote() {
-        return this.quoteList;
-    }
+    const quote: QuoteModel = { id: this.nextId++, text: normalized, createdAt: new Date() };
+    this.quoteList.update((list) => [...list, quote]);
+    return quote;
+  }
 
-    removeQuote(index: number) {
-        this.quoteList.splice(index, 1);
-    }
+  getQuotes(): readonly QuoteModel[] {
+    return this.quoteList();
+  }
 
-    fetchQuotesFromServer(): Promise<QuoteModel[]> {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve([new QuoteModel("I love unit testing", "Mon 4, 2018")]);
-            }, 2000);
-        });
-    }
+  removeQuote(id: number): void {
+    this.quoteList.update((list) => list.filter((quote) => quote.id !== id));
+  }
+
+  fetchQuotesFromServer(): Promise<QuoteModel[]> {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve([...SERVER_QUOTES]), FETCH_DELAY_MS);
+    });
+  }
 }
