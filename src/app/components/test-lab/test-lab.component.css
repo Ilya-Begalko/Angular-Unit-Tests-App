@@ -5,6 +5,7 @@
 
 .lab {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -27,6 +28,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   border: 0;
@@ -248,6 +250,7 @@
 
 .lab__suites {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -277,6 +280,7 @@
   position: sticky;
   top: calc(var(--app-header-height) + 16px);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -337,6 +341,7 @@
 /* Scenario */
 .scenarios {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   margin: 0;
   padding: 0;
@@ -396,6 +401,7 @@
 
 .scenario__toggle {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   flex: 1;
   min-width: 0;
   gap: 2px;
@@ -429,6 +435,7 @@
 
 .scenario__details {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   padding: 4px 16px 16px;
   border-top: 1px solid var(--app-border);
@@ -438,11 +445,13 @@
 .scenario__goal {
   color: var(--app-text-muted);
   font-size: 0.9375rem;
+  overflow-wrap: anywhere;
 }
 
 /* Steps */
 .steps {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
   margin: 0;
   padding: 0;
@@ -524,11 +533,13 @@
 .step__title {
   font-size: 0.9375rem;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .step__detail {
   color: var(--app-text-muted);
   font-size: 0.8125rem;
+  overflow-wrap: anywhere;
 }
 
 /* Error */
@@ -591,8 +602,14 @@
   list-style: none;
 }
 
+.tools li {
+  min-width: 0;
+}
+
 .tools code {
   font-size: 0.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .scenario__code summary {
@@ -767,7 +784,12 @@
 
   .segmented__option {
     flex: 1;
+    min-width: 0;
     text-align: center;
+  }
+
+  .segmented__option span {
+    padding-inline: 4px;
   }
 
   .lab__bug {

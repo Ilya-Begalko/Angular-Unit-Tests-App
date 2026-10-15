@@ -4,11 +4,13 @@
 
 .guide {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(32px, 5vw, 56px);
 }
 
 .guide__block {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -121,6 +123,7 @@
 
 .pipeline__body {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   min-width: 0;
   align-content: start;
